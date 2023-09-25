@@ -48,6 +48,8 @@ char8* stop[]   = {"1", "1.5", "2"};
 char8 char_in;
 char8 char_out[64];
 
+CY_ISR(USBUART_EP_0_ISR_EX);
+
 /*******************************************************************************
 * Function Name: main
 ********************************************************************************
@@ -80,6 +82,15 @@ int main()
 #endif /* (CY_PSOC3 || CY_PSOC5LP) */
     
     CyGlobalIntEnable;
+
+    if (0u == USBUART_initVar)
+    {
+        USBUART_Init();
+        USBUART_initVar = 1u;
+    }
+
+    CyIntSetPriority(USBUART_EP_0_VECT_NUM, USBUART_EP_0_PRIOR);
+    (void) CyIntSetVector(USBUART_EP_0_VECT_NUM,   &USBUART_EP_0_ISR_EX);
 
     /* Start USBFS operation with 5-V operation. */
     USBUART_Start(USBFS_DEVICE, USBUART_5V_OPERATION);
